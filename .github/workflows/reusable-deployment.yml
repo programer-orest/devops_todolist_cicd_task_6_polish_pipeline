@@ -31,7 +31,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: helm-artifacts
+          name: helm-artifacts-3.9-ubuntu-latest
           path: .
 
       - uses: actions/download-artifact@v4
