@@ -36,7 +36,6 @@ jobs:
 
     name: Python CI
     runs-on: ${{ matrix.OsType }}
-    if: github.event != workflow_dispatch
     defaults:
       run:
         working-directory: ./src
