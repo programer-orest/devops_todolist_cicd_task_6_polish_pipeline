@@ -15,7 +15,7 @@ on:
         type: choice
         options:
           - windows-3.8,
-          - ubuntu-3.8,
+          - ubuntu-3.8,a
           - windows-3.9,
           - ubuntu-3.9
 
