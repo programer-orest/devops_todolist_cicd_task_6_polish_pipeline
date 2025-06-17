@@ -7,6 +7,20 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      artifact:
+        description: "Deploy Artifact"
+        required: true
+        type: choice
+        options:
+          - windows-3.8,
+          - ubuntu-3.8,
+          - windows-3.9,
+          - ubuntu-3.9
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
 
 
 env:
@@ -15,8 +29,13 @@ env:
 
 jobs:
   python-ci:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        PythonVersion: [3.8, 3.9]
+        OsType: [ubuntu-latest, windows-latest]
 
+    name: Python CI
+    runs-on: ${{ matrix.OsType }}
     defaults:
       run:
         working-directory: ./src
@@ -24,10 +43,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ env.PythonVersion }}
+      - name: Set up Python ${{ matrix.PythonVersion }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.PythonVersion }}
+          python-version: ${{ matrix.PythonVersion }}
 
       - name: Install dependencies
         run: |
@@ -55,22 +74,24 @@ jobs:
       - name: Upload python artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: python-artifacts
+          name: python-artifacts-${{ matrix.PythonVersion }}-${{ matrix.OsType }}
           path: .
 
       - name: Upload helm artifacts
         if: github.ref_name == 'main'
         uses: actions/upload-artifact@v4
         with:
-          name: helm-artifacts
+          name: helm-artifacts-${{ matrix.PythonVersion }}-${{ matrix.OsType }}
           path: ${{ github.workspace }}/helm-charts
 
       - name: Upload kind cluster artifact
         if: github.ref_name == 'main'
         uses: actions/upload-artifact@v4
         with:
-          name: kind-cluster
+          name: kind-cluster-${{ matrix.PythonVersion }}-${{ matrix.OsType }}
           path: ${{ github.workspace }}/cluster.yml
+
+
 
   docker-ci:
     name: Build and Push Image
@@ -125,7 +146,7 @@ jobs:
     - name: Upload Helm Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: helm-package
+        name: helm-package-${{ matrix.PythonVersion }}-${{ matrix.OsType }}
         path: ./*.tgz
 
   deploy-helm-dev:
