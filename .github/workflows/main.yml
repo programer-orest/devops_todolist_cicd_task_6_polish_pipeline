@@ -9,12 +9,15 @@ on:
     branches: ["main"]
   workflow_dispatch:
     inputs:
-      matrix:
+      artifact:
         description: "Deploy Artifact"
         required: true
         type: choice
-        options: [windows-3.8, windows-3.9, ubuntu-3.8, ubuntu-3.9]
-
+        options:
+          - windows-3.8,
+          - ubuntu-3.8,
+          - windows-3.9,
+          - ubuntu-3.9
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,7 +36,7 @@ jobs:
 
     name: Python CI
     runs-on: ${{ matrix.OsType }}
-
+    if: github.event != workflow_dispatch
     defaults:
       run:
         working-directory: ./src
@@ -88,6 +91,8 @@ jobs:
         with:
           name: kind-cluster
           path: ${{ github.workspace }}/cluster.yml
+
+
 
   docker-ci:
     name: Build and Push Image
