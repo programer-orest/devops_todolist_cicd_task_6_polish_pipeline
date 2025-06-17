@@ -81,14 +81,14 @@ jobs:
         if: github.ref_name == 'main'
         uses: actions/upload-artifact@v4
         with:
-          name: helm-artifacts
+          name: helm-artifacts-${{ matrix.PythonVersion }}-${{ matrix.OsType }}
           path: ${{ github.workspace }}/helm-charts
 
       - name: Upload kind cluster artifact
         if: github.ref_name == 'main'
         uses: actions/upload-artifact@v4
         with:
-          name: kind-cluster
+          name: kind-cluster-${{ matrix.PythonVersion }}-${{ matrix.OsType }}
           path: ${{ github.workspace }}/cluster.yml
 
 
@@ -128,7 +128,7 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        name: helm-artifacts
+        name: helm-artifacts-${{ matrix.PythonVersion }}-${{ matrix.OsType }}
         path: .
 
     - name: Set Up Helm
@@ -146,7 +146,7 @@ jobs:
     - name: Upload Helm Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: helm-package
+        name: helm-package-${{ matrix.PythonVersion }}-${{ matrix.OsType }}
         path: ./*.tgz
 
   deploy-helm-dev:
